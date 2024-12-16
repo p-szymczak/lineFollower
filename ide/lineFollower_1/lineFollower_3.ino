@@ -83,3 +83,25 @@ void demoMode() {
   currentMode = STANDBY;
   Serial.println("Demo Mode Complete. Returning to standby.");
 }
+
+void raceMode() {
+  unsigned long startTime = millis();
+  Serial.println("Entering Race Mode.");
+
+  while (true) {
+    followLine();
+
+    // sprawdzenie czy jest meta
+    if (isFinishLine()) {
+      stopMotors();
+      unsigned long lapTime = millis() - startTime;
+      Serial.print("Lap Time: ");
+      Serial.print(lapTime / 1000.0);
+      Serial.println(" seconds.");
+      break;
+    }
+  }
+
+  currentMode = STANDBY;
+  Serial.println("Returning to standby.");
+}
