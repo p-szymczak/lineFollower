@@ -105,3 +105,19 @@ void raceMode() {
   currentMode = STANDBY;
   Serial.println("Returning to standby.");
 }
+
+void followLine() {
+}
+
+bool isFinishLine() {
+}
+
+int calculatePID() {
+}
+
+void setMotorSpeed() {
+}
+
+void stopMotors() {
+  setMotorSpeed(0, 0);
+}
