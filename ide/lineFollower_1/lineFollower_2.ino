@@ -67,3 +67,11 @@ void loop() {
         currentMode = STANDBY;
     }
 }
+
+void demoMode() {
+  currentMode = STANDBY;
+}
+
+void raceMode() {
+  currentMode = STANDBY;
+}
