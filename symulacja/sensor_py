@@ -1,0 +1,34 @@
+def sysCall_init():
+    sim = require('sim')
+    simVision = require('simVision')
+    # Initialization code, if any, goes here
+    pass
+
+def sysCall_vision(inData):
+    simVision.sensorImgToWorkImg(inData['handle'])
+
+    # Perform binary image processing
+    trig, packedPacket = simVision.binaryWorkImg(
+        inData['handle'],
+        0.500000,  # Red lower threshold
+        1.000000,  # Red upper threshold
+        0.100000,  # Green lower threshold
+        0.500000,  # Green upper threshold
+        1.000000,  # Blue lower threshold
+        0.500000,  # Blue upper threshold
+        1.000000,  # Hue lower threshold
+        0.000000,  # Hue upper threshold
+        1.570971,  # Saturation lower threshold
+        1.000000,  # Saturation upper threshold
+        True       # Trigger mode
+    )
+
+    # Prepare return values
+    retVal = {
+        'trigger': trig,
+        'packedPackets': []
+    }
+    if packedPacket:
+        retVal['packedPackets'].append(packedPacket)
+    
+    return retVal
