@@ -1,0 +1,68 @@
+sim=require'sim'
+
+function sysCall_init()
+    -- uchwyty czujnikow i silnikow
+    sensors = {
+        sim.getObject("/sensor[0]"),
+        sim.getObject("/sensor[1]"),
+        sim.getObject("/sensor[2]"),
+        sim.getObject("/sensor[3]"),
+        sim.getObject("/sensor[4]"),
+        sim.getObject("/sensor[5]"),
+        sim.getObject("/sensor[6]"),
+        sim.getObject("/sensor[7]")
+    }
+    leftMotor = sim.getObject("/leftMotor")
+    rightMotor = sim.getObject("/rightMotor")
+    
+    sim.setJointTargetVelocity(leftMotor, 0)
+    sim.setJointTargetVelocity(rightMotor, 0)
+
+    -- wspolczynniki pid
+    Kp = 0.36
+    Kd = 0.008
+    Ki = 0.0015
+
+    -- inne parametry
+    baseSpeed = 0.3
+    wheelRadius = 0.07
+    integral = 0
+    lastError = 0
+end
+
+function sysCall_actuation()
+    -- odczyt czujnikow
+    sensorStates = {}
+    for i, sensor in ipairs(sensors) do
+        sensorStates[i] = (sim.readVisionSensor(sensor) == 1) and 1 or 0
+    end
+
+    -- obliczenie bledu
+    local error = 0
+    local activeSensors = 0
+    for i, state in ipairs(sensorStates) do
+        if state == 1 then
+            error = error + (i - (#sensors + 1) / 2) -- Centered on middle sensor
+            activeSensors = activeSensors + 1
+        end
+    end
+    if activeSensors > 0 then
+        error = error / activeSensors
+    end
+
+    -- obliczenie pid
+    local derivative = error - lastError
+    integral = integral + error
+    correction = Kp * error + Ki * integral + Kd * derivative
+    lastError = error
+
+    -- korekta predkosci
+    local leftSpeed = baseSpeed + correction
+    local rightSpeed = baseSpeed - correction
+
+    -- zmiana predkosci
+    sim.setJointTargetVelocity(leftMotor,(leftSpeed / wheelRadius))
+    --print(leftSpeed / wheelRadius)
+    sim.setJointTargetVelocity(rightMotor,(rightSpeed / wheelRadius))
+    --print(rightSpeed / wheelRadius)
+end
